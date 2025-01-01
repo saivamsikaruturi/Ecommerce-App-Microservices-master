@@ -1,0 +1,4 @@
+spring:
+  cloud:
+    config:
+      import: configserver:http://localhost:9016

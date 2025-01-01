@@ -1,0 +1,2 @@
+-- ALTER TABLE t_order
+--     RENAME COLUMN stu_code to sku_code;

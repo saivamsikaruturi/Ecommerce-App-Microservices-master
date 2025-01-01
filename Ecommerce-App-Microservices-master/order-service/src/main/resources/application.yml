@@ -1,0 +1,115 @@
+server:
+  port: 8081
+
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/order-service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    url: jdbc:postgresql://localhost:5432/order-service
+    user: postgres
+    password: postgres
+    locations: classpath:db/migration
+
+  application:
+    name: order-service
+
+  cloud:
+    config:
+      import: configserver:http://localhost:9016
+  kafka:
+    bootstrapServers: localhost:9092
+    producer:
+      keySerializer: org.apache.kafka.common.serialization.StringSerializer
+      valueSerializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            type:
+              mapping: event:com.example.orderservice.event.OrderPlacedEvent
+    template:
+      defaultTopic: notificationTopic
+
+
+
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+    enabled: true
+  instance:
+    hostname: localhost
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    preferIpAddress: true
+
+
+logging:
+  level:
+    root: Info
+
+
+
+cloud:
+  loadbalancer:
+    ribbon:
+      enabled: false
+
+# enable actuator
+management:
+  health:
+    circuitBreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+    health:
+      show-details: always
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+    observations:
+      key-values:
+        application: order-service
+
+  tracing:
+    sampling:
+      probability: 1.0
+#Resilience4j props
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory:
+        registerHealthIndicator: true
+        event-consumer-buffer-size: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+  timelimiter:
+    instances:
+      inventory:
+        timeout-duration: 3s
+
+  retry:
+    instances:
+      inventory:
+        max-attempts: 3
+        wait-duration: 5s
+
+

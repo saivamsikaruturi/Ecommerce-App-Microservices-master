@@ -1,0 +1,7 @@
+-- CREATE TABLE t_order (
+--                          id SERIAL PRIMARY KEY,
+--                          order_number VARCHAR(255),
+--                          stu_code VARCHAR(255),
+--                          price DECIMAL(10, 2),
+--                          quantity INT
+-- );

@@ -1,0 +1,54 @@
+server:
+  port: 8082
+
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/inventory-service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  application:
+    name: inventory-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+    enabled: true
+  instance:
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    preferIpAddress: true
+
+cloud:
+  loadbalancer:
+    ribbon:
+      enabled: false
+
+
+management:
+  health:
+    circuitBreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+    health:
+      show-details: always
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+    observations:
+      key-values:
+        application: inventory-service
+
+  tracing:
+    sampling:
+      probability: 1.0
